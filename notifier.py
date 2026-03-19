@@ -1,18 +1,17 @@
 import requests
+import time
 from plyer import notification
-
-# Your API details
-RAPID_API_KEY = "Enter_Your_API_Key_Here"
-RAPID_API_HOST = "Enter_Your_API_Host_Here"
+RAPID_API_KEY = "ENTER_YOUR_API_KEY_HERE"
+RAPID_API_HOST = "ENTER_YOUR_API_HOST_HERE"
 URL = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/live"
 
 def trigger_popup(title, message):
-    # This function uses plyer to push the desktop notification
+    
     notification.notify(
         title=title,
         message=message,
         app_name="Cricket Notifier",
-        timeout=10 # The pop-up will stay on screen for 10 seconds
+        timeout=10 
     )
 
 def get_live_scores():
@@ -29,21 +28,20 @@ def get_live_scores():
             data = response.json()
             match_found = False
             
-            # --- THE EXTRACTION LOGIC ---
-            # Digging through the nested dictionaries to find a live match
+           
             for type_match in data.get("typeMatches", []):
                 for series in type_match.get("seriesMatches", []):
                     if "seriesAdWrapper" in series:
                         for match in series["seriesAdWrapper"].get("matches", []):
                             match_info = match.get("matchInfo", {})
                             
-                            # Check if the match is currently happening
+                          
                             if match_info.get("state") == "In Progress":
                                 team1 = match_info["team1"]["teamName"]
                                 team2 = match_info["team2"]["teamName"]
                                 status = match_info.get("status", "Score updating...")
                                 
-                                # Format what the notification will say
+                              
                                 popup_title = f"{team1} vs {team2}"
                                 popup_message = status
                                 
@@ -51,7 +49,7 @@ def get_live_scores():
                                 trigger_popup(popup_title, popup_message)
                                 
                                 match_found = True
-                                break # Stop after finding the first live match
+                                break
                         
                         if match_found:
                             break
@@ -68,4 +66,11 @@ def get_live_scores():
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    get_live_scores()
+    print("Starting Cricket Notifier... (Press Ctrl+C in the terminal to stop)")
+    
+    while True:
+        get_live_scores()
+        print("Waiting for 5 minutes before checking again...\n")
+        
+       
+        time.sleep(300)
